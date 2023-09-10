@@ -1,0 +1,113 @@
+swagger: "2.0"
+info:
+  title: "psec's NodeJS skeleton service"
+  version: 1.0.0
+tags:
+- name: Event
+  description: Publishing events endpoints
+- name: Authentication
+  description: Authentication endpoints
+# [TOKEN ENDPOINT] /auth/token
+securityDefinitions:
+  bearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: >-
+      Enter the token with the `Bearer: ` prefix, e.g. "Bearer abcde12345".
+paths:
+  /event:
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+      - Event
+      summary: Publishes an event
+      parameters:
+      - name: body
+        in: body
+        description: Event data
+        required: true
+        schema:
+          $ref: '#/definitions/eventRequest'
+      responses:
+        200:
+          description: 'Async task to process event scheduled'
+        400:
+          description: 'Bad Request'
+        401:
+          description: 'Unauthorized'
+        500:
+          description: 'Server Error'
+  /oauth/token:
+    post:
+      tags:
+      - Authentication
+      summary: Authenticate client application to retrieve an access token
+      parameters:
+      - name: body
+        in: body
+        description: Client Credentials Data
+        required: true
+        schema:
+          $ref: '#/definitions/clientCredentialsRequest'
+      responses:
+        200:
+          description: 'OK'
+        400:
+          description: 'Bad Request'
+        500:
+          description: 'Server Error'
+# components:
+#   securitySchemes:
+#     bearerAuth:
+#       type: http
+#       scheme: bearer
+#       bearerFormat: JWT  # optional, for documentation purposes only
+# definitions
+definitions:
+  clientCredentialsRequest:
+    type: object
+    required:
+      - client_id
+      - client_secret
+      - audience
+      - grant_type
+    properties:
+      client_id:
+        type: string
+        example: 'PBA3blbAzVleqsHC0U96KWIFrz4sCzb8'
+      client_secret:
+        type: string
+        example: '_XRU57AtBnxWwByIV_Ehtygtjww4Dl86fZEHS3COCPGirkoKOXjgaw412pRCJZ8Q' 
+      audience:
+        type: string
+        description: Intended API to get an access token for
+        example: 'http://psec-nodejs-skeleton'
+      grant_type:
+        type: string
+        description: Grant type of the authentication, currently only client credentials supported
+        example: 'client_credentials'
+  eventRequest:
+    type: object
+    required:
+      - id
+      - name
+      - body
+      - timestamp
+    properties:
+      id:
+        type: string
+        example: 'c972fec7-0816-47f5-a684-2f7b74f212a5'
+      name:
+        type: string
+        example: 'test event' 
+      body:
+        type: string
+        example: 'test body'
+      timestamp:
+        type: string
+        example: '1693647588'
+schemes:
+ - https
+ - http
